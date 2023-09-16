@@ -19,12 +19,7 @@ let isOrbitControlsEnabled = false;
 const noise3D = createNoise3D();
 const showHelperAxis = false;
 const isOrtho = true; // use orthographic or perspective camera
-const scl = 28;
-
-// colors set by a sequence of r, g, b numbers,
-// so the first 3 are one color and so on
-const colors = [0, 0, 0, 0, 0.3, 1];
-const points = [0, 0, 0, 0, 0, 1];
+const gridResolution = 28;
 
 let lineWidth = 10;
 let lineHeight = 180;
@@ -35,6 +30,9 @@ let hasXrotation = true;
 let hasYrotation = true;
 let hasZrotation = false;
 
+/**
+ * Randomly the last 3 numbers in the colors array
+ */
 const randomColour = () => {
   colors[3] = Math.random();
   colors[4] = Math.random();
@@ -44,7 +42,7 @@ const randomColour = () => {
 };
 
 /**
- * Given a value min/max range to another
+ * Re-maps a number from one range to another
  *
  * @param {number} current
  * @param {number} in_min
@@ -57,6 +55,32 @@ const mapNoise = (current, in_min, in_max, out_min, out_max) => {
   return (
     ((current - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min
   );
+};
+
+/**
+ * Calculates the vertices (x, y) and noise value per line
+ *
+ * The vertices array is a sequence pair of x, y values to store the lines coordinates
+ * The noise array contains the height value per line
+ * This setup makes the vertices array to have twice the values as the noise array
+ *
+ * @param {number} _width
+ * @param {number} _height
+ * @returns vertices
+ */
+
+const getVertices = (_width, _height) => {
+  const vertices = [];
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = c * gridResolution - _width / 2;
+      const y = r * gridResolution - _height / 2;
+      vertices.push(x, y);
+    }
+  }
+
+  return { vertices };
 };
 
 /**
@@ -111,44 +135,27 @@ const setup = () => {
 };
 
 const { width, height, scene, camera, renderer, controls } = setup();
-const rows = Math.ceil(height / scl);
-const cols = Math.ceil(width / scl);
-
-/**
- * Calculates the vertices (x, y) and noise value per line
- *
- * The vertices array is a sequence pair of x, y values to store the lines coordinates
- * The noise array contains the height value per line
- * This setup makes the vertices array to have twice the values as the noise array
- *
- * @returns vertices and noise arrays
- */
-const getVertices = () => {
-  const vertices = [];
-  const noise = [];
-
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const x = c * scl - width / 2;
-      const y = r * scl - height / 2;
-
-      noise.push(noise3D(x, y, 0));
-
-      vertices.push(x, y);
-    }
-  }
-
-  return { vertices, noise };
-};
+const rows = Math.ceil(height / gridResolution);
+const cols = Math.ceil(width / gridResolution);
 
 /**
  * Creates the lines grid
+ *
+ * The colors and points arrays, most be of equal length,
+ * they store the line points in a sequence of r, g, b numbers for the * colors and x, y, z sequence for the points arrays
+ *
+ * @returns lines, pivots
  */
 const initLinesGrid = () => {
+  // colors set by a sequence of r, g, b numbers,
+  // so the first 3 are one color and so on
+  const colors = [0, 0, 0, 0, 0.3, 1];
+  const points = [0, 0, 0, 0, 0, 1];
+
   const lines = [];
   const pivots = [];
 
-  const { vertices, noise } = getVertices();
+  const { vertices } = getVertices(width, height);
 
   let noiseIndex = 0; // vertices has double the amount of indices as noise, this is to keep track the matching verctice and noise pair per line
 
@@ -190,9 +197,9 @@ const initLinesGrid = () => {
 const { lines, pivots } = initLinesGrid();
 
 /**
- * Drawing loop, to animate the lines
+ * Drawing loop
  *
- * zoff, xoff and yoff are values used to calculate/control the noise factor returned by noise3D()
+ * zoff, xoff and yoff are values used to calculate/control the noise value returned by noise3D()
  */
 let zoff = 0;
 const draw = () => {
@@ -229,6 +236,9 @@ const draw = () => {
 };
 draw();
 
+/**
+ * Sets and reders GUI controls and stats
+ */
 const setupGUI = () => {
   gui = new GUI({ width: 340 });
   gui.hide();
