@@ -13,6 +13,8 @@ import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 
 let stats, gpuPanel;
 let gui;
+let showGUI = false;
+let isOrbitControlsEnabled = false;
 
 const noise3D = createNoise3D();
 const showHelperAxis = false;
@@ -24,11 +26,14 @@ const scl = 28;
 const colors = [0, 0, 0, 0, 0.3, 1];
 const points = [0, 0, 0, 0, 0, 1];
 
-let lineWidth = 12;
-let lineHeight = 150;
+let lineWidth = 10;
+let lineHeight = 180;
 let noiseSpeed = 0.00003;
-let noiseIncrementX = 0.04;
-let noiseIncrementY = 0.04;
+let noiseIncrementX = 0.015;
+let noiseIncrementY = 0.05;
+let hasXrotation = true;
+let hasYrotation = true;
+let hasZrotation = false;
 
 const randomColour = () => {
   colors[3] = Math.random();
@@ -89,6 +94,7 @@ const setup = () => {
   camera.position.z = isOrtho ? 500 : 2000;
 
   const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enabled = isOrbitControlsEnabled;
   document.body.appendChild(renderer.domElement);
 
   showHelperAxis && scene.add(new THREE.AxesHelper(200));
@@ -134,27 +140,6 @@ const getVertices = () => {
 
   return { vertices, noise };
 };
-
-/**
- * Creates a points grid
- *
- * @returns grid
- */
-const initGrid = () => {
-  const { vertices } = getVertices();
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute(
-    "position",
-    new THREE.Float32BufferAttribute(vertices, 2)
-  );
-
-  const material = new THREE.PointsMaterial({ color: 0xff00ff, size: 4 });
-  const grid = new THREE.Points(geometry, material);
-  scene.add(grid);
-
-  return { grid };
-};
-// const { grid } = initGrid();
 
 /**
  * Creates the lines grid
@@ -222,15 +207,15 @@ const draw = () => {
 
     for (let x = 0; x < cols; x++) {
       const n = noise3D(xoff, yoff, zoff);
-      const angle = n * Math.PI;
+      const angle = mapNoise(n, -1, 1, 0, -Math.PI);
 
-      // lines[lineIndex].rotation.set(0, 0, angle);
       lines[lineIndex].material.opacity = mapNoise(n, -1, 1, 0, 1);
-      // pivots[lineIndex].rotation.z = angle;
       lines[lineIndex].scale.z = mapNoise(n, -1, 1, 0, lineHeight);
-      pivots[lineIndex].rotation.y = angle;
-      lines[lineIndex].material.linewidth = lineWidth;
-      pivots[lineIndex].rotation.x = angle;
+      lines[lineIndex].material.linewidth = mapNoise(n, -1, 1, 1, lineWidth);
+      pivots[lineIndex].rotation.y = hasXrotation ? angle : 0;
+      pivots[lineIndex].rotation.x = hasYrotation ? angle : 0;
+      pivots[lineIndex].rotation.z = hasZrotation ? angle : 0;
+
       lineIndex++;
       xoff += noiseIncrementX;
     }
@@ -245,36 +230,69 @@ const draw = () => {
 draw();
 
 const setupGUI = () => {
-  gui = new GUI({ width: 310 });
+  gui = new GUI({ width: 340 });
+  gui.hide();
+  document.body.removeChild(stats.dom);
 
   const settings = {
-    "line width": 12,
-    "line height": 150,
-    "noise speed": 0.03,
-    "noise increment x": 0.4,
-    "noise increment y": 0.4,
-    "change random colour": () => randomColour(),
+    "Line width": lineWidth,
+    "Line height": lineHeight,
+    "Noise speed": noiseSpeed,
+    "Noise increment x": noiseIncrementX,
+    "Noise increment y": noiseIncrementY,
+    "Change random colour": () => randomColour(),
+    "Allow rotation on X": hasXrotation,
+    "Allow rotation on Y": hasYrotation,
+    "Toggle mouse camera controls": isOrbitControlsEnabled,
   };
 
   gui
-    .add(settings, "line width", 1, 20, 1)
+    .add(settings, "Line width", 1, 20, 1)
     .onChange((val) => (lineWidth = val));
   gui
-    .add(settings, "line height", 50, 300, 1)
+    .add(settings, "Line height", 50, 300, 1)
     .onChange((val) => (lineHeight = val));
 
   gui
-    .add(settings, "noise speed", 0.01, 0.5, 0.01)
-    .onChange((val) => (noiseSpeed = val / 10000));
+    .add(settings, "Noise speed", 0.00001, 0.0005, 0.00001)
+    .onChange((val) => (noiseSpeed = val));
 
   gui
-    .add(settings, "noise increment x", 0.01, 1, 0.01)
-    .onChange((val) => (noiseIncrementX = val / 10));
+    .add(settings, "Noise increment x", 0.001, 0.1, 0.001)
+    .onChange((val) => (noiseIncrementX = val));
 
   gui
-    .add(settings, "noise increment y", 0.01, 1, 0.01)
-    .onChange((val) => (noiseIncrementY = val / 10));
+    .add(settings, "Noise increment y", 0.001, 0.1, 0.001)
+    .onChange((val) => (noiseIncrementY = val));
 
-  gui.add(settings, "change random colour");
+  gui.add(settings, "Change random colour");
+  gui
+    .add(settings, "Allow rotation on X")
+    .onChange(() => (hasXrotation = !hasXrotation));
+  gui
+    .add(settings, "Allow rotation on Y")
+    .onChange(() => (hasYrotation = !hasYrotation));
+
+  gui.add(settings, "Toggle mouse camera controls").onChange(() => {
+    isOrbitControlsEnabled = !isOrbitControlsEnabled;
+    controls.enabled = isOrbitControlsEnabled;
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key.toLocaleLowerCase() === "h") {
+      showGUI = !showGUI;
+      const instructions = document.querySelector("#instructions");
+
+      if (showGUI) {
+        gui.show();
+        document.body.appendChild(stats.dom);
+        instructions.style.display = "none";
+      } else {
+        gui.hide();
+        document.body.removeChild(stats.dom);
+        instructions.style.display = "flex";
+      }
+    }
+  });
 };
 setupGUI();
