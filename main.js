@@ -21,6 +21,11 @@ const showHelperAxis = false;
 const isOrtho = true; // use orthographic or perspective camera
 const gridResolution = 28;
 
+// colors set by a sequence of r, g, b numbers,
+// so the first 3 are one color and so on
+const colors = [0, 0, 0, 0, 0.3, 1];
+const points = [0, 0, 0, 0, 0, 1];
+
 let lineWidth = 10;
 let lineHeight = 180;
 let noiseSpeed = 0.00003;
@@ -147,11 +152,6 @@ const cols = Math.ceil(width / gridResolution);
  * @returns lines, pivots
  */
 const initLinesGrid = () => {
-  // colors set by a sequence of r, g, b numbers,
-  // so the first 3 are one color and so on
-  const colors = [0, 0, 0, 0, 0.3, 1];
-  const points = [0, 0, 0, 0, 0, 1];
-
   const lines = [];
   const pivots = [];
 
