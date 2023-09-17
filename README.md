@@ -2,9 +2,11 @@
 
 Personal project to recreate the MacOS Drif screensaver using Javascript and Threejs.
 
+Build and bundled with **Vite** and **Yarn** as the package manager.
+
 ![drift screenshot](./public/repo_assets/screenshot.png)
 
-Added a control panel to customize the animation parameters. Press the letter `H` to toggle it on and off.
+Added a control panel to customize the animation parameters. Press the letter `H` to toggle it on and off (desktop browsers only).
 
 ![controls screenshot](./public/repo_assets/controls.png)
 
