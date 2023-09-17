@@ -20,7 +20,7 @@ let isOrbitControlsEnabled = false;
 const noise3D = createNoise3D();
 const showHelperAxis = false;
 const isOrtho = true; // use orthographic or perspective camera
-const gridResolution = isMobile ? 20 : 28;
+const gridResolution = isMobile ? 10 : 28;
 
 // colors set by a sequence of r, g, b numbers,
 // so the first 3 are one color and so on
