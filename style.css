@@ -1,3 +1,4 @@
+*,
 body {
   box-sizing: border-box;
   padding: 0;
@@ -6,8 +7,7 @@ body {
 
 #instructions {
   position: absolute;
-  display: flex;
-  justify-content: center;
+  display: block;
   color: #fff;
   font-size: 1rem;
   font-weight: 300;
@@ -16,12 +16,13 @@ body {
   width: 100%;
   margin-top: 1rem;
   text-shadow: 1px 0px 5px black;
-
+  text-align: center;
+  padding: 1rem;
   animation: hide 5s forwards;
 }
 
 #instructions > strong {
-  margin: 0 0.5rem;
+  margin: 0 0.1rem;
   color: #ffcc00;
   font-weight: 600;
 }

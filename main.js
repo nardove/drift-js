@@ -11,6 +11,7 @@ import Stats from "three/addons/libs/stats.module.js";
 import { GPUStatsPanel } from "three/addons/utils/GPUStatsPanel.js";
 import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 
+let isMobile = window.matchMedia("(max-width: 767px)").matches;
 let stats, gpuPanel;
 let gui;
 let showGUI = false;
@@ -19,7 +20,7 @@ let isOrbitControlsEnabled = false;
 const noise3D = createNoise3D();
 const showHelperAxis = false;
 const isOrtho = true; // use orthographic or perspective camera
-const gridResolution = 28;
+const gridResolution = isMobile ? 20 : 28;
 
 // colors set by a sequence of r, g, b numbers,
 // so the first 3 are one color and so on
@@ -27,10 +28,10 @@ const colors = [0, 0, 0, 0, 0.3, 1];
 const points = [0, 0, 0, 0, 0, 1];
 
 let lineWidth = 10;
-let lineHeight = 180;
+let lineHeight = isMobile ? 80 : 180;
 let noiseSpeed = 0.00003;
-let noiseIncrementX = 0.015;
-let noiseIncrementY = 0.05;
+let noiseIncrementX = isMobile ? 0.048 : 0.015;
+let noiseIncrementY = isMobile ? 0.063 : 0.05;
 let hasXrotation = true;
 let hasYrotation = true;
 let hasZrotation = false;
@@ -118,9 +119,10 @@ const setup = () => {
     : new THREE.PerspectiveCamera(45, width / height, 1, 10000);
 
   // By offsetting the camera, the line cap artefacts goes away
-  // camera.position.x = isOrtho ? 300 : 0;
+  // camera.position.x = isOrtho ? 100 : 0;
   camera.position.y = isOrtho ? 100 : 0;
-  camera.position.z = isOrtho ? 500 : 2000;
+  camera.position.z = isOrtho ? height / 2 : 2000;
+  camera.zoom = isMobile ? 1.2 : 1.1;
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enabled = isOrbitControlsEnabled;
@@ -214,7 +216,7 @@ const draw = () => {
 
     for (let x = 0; x < cols; x++) {
       const n = noise3D(xoff, yoff, zoff);
-      const angle = mapNoise(n, -1, 1, 0, -Math.PI);
+      const angle = mapNoise(n, -1, 1, 0, Math.PI);
 
       lines[lineIndex].material.opacity = mapNoise(n, -1, 1, 0, 1);
       lines[lineIndex].scale.z = mapNoise(n, -1, 1, 0, lineHeight);
@@ -288,8 +290,11 @@ const setupGUI = () => {
     controls.enabled = isOrbitControlsEnabled;
   });
 
+  if (isMobile) {
+    instructions.style.display = "none";
+  }
   window.addEventListener("keydown", (e) => {
-    if (e.key.toLocaleLowerCase() === "h") {
+    if (e.key.toLocaleLowerCase() === "h" && !isMobile) {
       showGUI = !showGUI;
       const instructions = document.querySelector("#instructions");
 
@@ -300,7 +305,7 @@ const setupGUI = () => {
       } else {
         gui.hide();
         document.body.removeChild(stats.dom);
-        instructions.style.display = "flex";
+        instructions.style.display = "block";
       }
     }
   });
