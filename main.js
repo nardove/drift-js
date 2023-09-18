@@ -20,7 +20,7 @@ let isOrbitControlsEnabled = false;
 const noise3D = createNoise3D();
 const showHelperAxis = false;
 const isOrtho = true; // use orthographic or perspective camera
-const gridResolution = isMobile ? 10 : 28;
+const gridResolution = isMobile ? 10 : 25;
 
 // colors set by a sequence of r, g, b numbers,
 // so the first 3 are one color and so on
@@ -74,7 +74,6 @@ const mapNoise = (current, in_min, in_max, out_min, out_max) => {
  * @param {number} _height
  * @returns vertices
  */
-
 const getVertices = (_width, _height) => {
   const vertices = [];
 
@@ -216,11 +215,12 @@ const draw = () => {
 
     for (let x = 0; x < cols; x++) {
       const n = noise3D(xoff, yoff, zoff);
-      const angle = mapNoise(n, -1, 1, 0, Math.PI);
+      const angle = mapNoise(n, -1, 1, -Math.PI, Math.PI);
 
-      lines[lineIndex].material.opacity = mapNoise(n, -1, 1, 0, 1);
       lines[lineIndex].scale.z = mapNoise(n, -1, 1, 0, lineHeight);
+      lines[lineIndex].material.opacity = mapNoise(n, -1, 1, 0, 1);
       lines[lineIndex].material.linewidth = mapNoise(n, -1, 1, 1, lineWidth);
+
       pivots[lineIndex].rotation.y = hasXrotation ? angle : 0;
       pivots[lineIndex].rotation.x = hasYrotation ? angle : 0;
       pivots[lineIndex].rotation.z = hasZrotation ? angle : 0;
