@@ -29,6 +29,8 @@ let lineHeight = isMobile ? 60 : 100;
 let noiseSpeed = 0.00003;
 let noiseIncrementX = isMobile ? 0.048 : 0.015;
 let noiseIncrementY = isMobile ? 0.063 : 0.025;
+let noiseOffsetX = 0;
+const noiseFlowSpeed = 0.15; // noise-coordinate units per second
 
 /**
  * Initial threejs scene setup.
@@ -128,6 +130,8 @@ const draw = (timestamp) => {
 
   stats.update();
 
+  // noiseOffsetX += noiseFlowSpeed * deltaTime;
+
   let yoff = 0;
   for (let y = 0; y < rows; y++) {
     let xoff = 0;
@@ -135,6 +139,7 @@ const draw = (timestamp) => {
     for (let x = 0; x < cols; x++) {
       const stickIndex = y * cols + x;
       const n = noise3D(xoff, yoff, zoff);
+      // const n = noise3D(xoff + noiseOffsetX, yoff, 0);
       sticks[stickIndex].update(n, deltaTime);
       xoff += noiseIncrementX;
     }

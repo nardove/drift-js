@@ -23,6 +23,9 @@ export default class Stick {
     this.line;
     this.pivot = new THREE.Group();
     this.scene = _scene;
+
+    this.directionX = 1;
+    this.directionY = 0;
   }
 
   init() {
@@ -52,18 +55,22 @@ export default class Stick {
   update(_noise, _deltaTime) {
     const stickHeight = mapNoise(_noise, -1, 1, 0, this.lineHeight);
     this.line.scale.z = stickHeight;
+    this.line.material.opacity = mapNoise(_noise, -1, 1, 0, 1);
 
-    // update line opacity based on noise
-    const opacity = mapNoise(_noise, -1, 1, 0, 1);
-    this.line.material.opacity = opacity;
+    const targetAngle = _noise * Math.PI;
+    const targetX = Math.cos(targetAngle);
+    const targetY = Math.sin(targetAngle);
+    const blend = 1 - Math.exp(-4 * _deltaTime);
 
-    const rotationSpeed = mapNoise(_noise, -1, 1, 0.4, 1.2);
-    this.rotationAngle =
-      (this.rotationAngle + rotationSpeed * _deltaTime) % (Math.PI * 2);
+    this.directionX += (targetX - this.directionX) * blend;
+    this.directionY += (targetY - this.directionY) * blend;
+
+    const directionLength = Math.hypot(this.directionX, this.directionY) || 1;
     const tilt = mapNoise(_noise, -1, 1, 0.2, 0.8);
+
     this.pivot.rotation.set(
-      Math.cos(this.rotationAngle) * tilt,
-      Math.sin(this.rotationAngle) * tilt,
+      (this.directionX / directionLength) * tilt,
+      (this.directionY / directionLength) * tilt,
       0,
     );
   }
