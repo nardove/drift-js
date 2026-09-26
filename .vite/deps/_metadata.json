@@ -1,0 +1,74 @@
+{
+  "hash": "1e223658",
+  "browserHash": "64aea3a5",
+  "optimized": {
+    "three": {
+      "src": "../../node_modules/three/build/three.module.js",
+      "file": "three.js",
+      "fileHash": "73205d04",
+      "needsInterop": false
+    },
+    "three/addons/controls/OrbitControls.js": {
+      "src": "../../node_modules/three/examples/jsm/controls/OrbitControls.js",
+      "file": "three_addons_controls_OrbitControls__js.js",
+      "fileHash": "5794f368",
+      "needsInterop": false
+    },
+    "simplex-noise": {
+      "src": "../../node_modules/simplex-noise/dist/esm/simplex-noise.js",
+      "file": "simplex-noise.js",
+      "fileHash": "213e1738",
+      "needsInterop": false
+    },
+    "three/addons/libs/stats.module.js": {
+      "src": "../../node_modules/three/examples/jsm/libs/stats.module.js",
+      "file": "three_addons_libs_stats__module__js.js",
+      "fileHash": "69e1edfa",
+      "needsInterop": false
+    },
+    "three/addons/utils/GPUStatsPanel.js": {
+      "src": "../../node_modules/three/examples/jsm/utils/GPUStatsPanel.js",
+      "file": "three_addons_utils_GPUStatsPanel__js.js",
+      "fileHash": "d6961c91",
+      "needsInterop": false
+    },
+    "three/addons/libs/lil-gui.module.min.js": {
+      "src": "../../node_modules/three/examples/jsm/libs/lil-gui.module.min.js",
+      "file": "three_addons_libs_lil-gui__module__min__js.js",
+      "fileHash": "e9d30146",
+      "needsInterop": false
+    },
+    "three/addons/lines/Line2.js": {
+      "src": "../../node_modules/three/examples/jsm/lines/Line2.js",
+      "file": "three_addons_lines_Line2__js.js",
+      "fileHash": "abde3e01",
+      "needsInterop": false
+    },
+    "three/addons/lines/LineMaterial.js": {
+      "src": "../../node_modules/three/examples/jsm/lines/LineMaterial.js",
+      "file": "three_addons_lines_LineMaterial__js.js",
+      "fileHash": "967a10a8",
+      "needsInterop": false
+    },
+    "three/addons/lines/LineGeometry.js": {
+      "src": "../../node_modules/three/examples/jsm/lines/LineGeometry.js",
+      "file": "three_addons_lines_LineGeometry__js.js",
+      "fileHash": "fbc358c5",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-B3U5KFMV": {
+      "file": "chunk-B3U5KFMV.js"
+    },
+    "chunk-6YDETPHG": {
+      "file": "chunk-6YDETPHG.js"
+    },
+    "chunk-TGYAE6NJ": {
+      "file": "chunk-TGYAE6NJ.js"
+    },
+    "chunk-EO56OKUL": {
+      "file": "chunk-EO56OKUL.js"
+    }
+  }
+}
