@@ -1,8 +1,8 @@
-import * as THREE from "three";
-import { Line2 } from "three/addons/lines/Line2.js";
-import { LineMaterial } from "three/addons/lines/LineMaterial.js";
-import { LineGeometry } from "three/addons/lines/LineGeometry.js";
-import { mapNoise } from "./utils/utils";
+import * as THREE from 'three';
+import { Line2 } from 'three/addons/lines/Line2.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
+import { mapNoise } from './utils/utils';
 
 export default class Stick {
   constructor(_lineWidth, _lineHeight, _x, _y, _width, _height, _scene) {
@@ -13,6 +13,7 @@ export default class Stick {
 
     this.lineWidth = _lineWidth;
     this.lineHeight = _lineHeight;
+    this.rotationAngle = 0;
 
     this.x = _x;
     this.y = _y;
@@ -48,7 +49,7 @@ export default class Stick {
     this.scene.add(this.pivot);
   }
 
-  update(_noise) {
+  update(_noise, _deltaTime) {
     const stickHeight = mapNoise(_noise, -1, 1, 0, this.lineHeight);
     this.line.scale.z = stickHeight;
 
@@ -56,24 +57,14 @@ export default class Stick {
     const opacity = mapNoise(_noise, -1, 1, 0, 1);
     this.line.material.opacity = opacity;
 
-    const angle = _noise * Math.PI * 2;
-    // create vector from angle
-    const x = Math.cos(angle);
-    const y = Math.sin(angle);
-    const z = 0;
-    const vector = new THREE.Vector3(x, y, z);
-
-    // get vector direction
-    vector.normalize();
-
-    // set rotation from vector
-    const euler = new THREE.Euler();
-    euler.setFromVector3(vector);
-    this.pivot.rotation.copy(euler);
-
-    // rotate on x and y axis based on noise
-    // const rotX = mapNoise(_noise, -1, 1, 0, Math.PI * 2);
-    // const rotY = mapNoise(_noise, -1, 1, 0, Math.PI * 2);
-    // this.pivot.rotation.set(rotX, rotY, 0);
+    const rotationSpeed = mapNoise(_noise, -1, 1, 0.4, 1.2);
+    this.rotationAngle =
+      (this.rotationAngle + rotationSpeed * _deltaTime) % (Math.PI * 2);
+    const tilt = mapNoise(_noise, -1, 1, 0.2, 0.8);
+    this.pivot.rotation.set(
+      Math.cos(this.rotationAngle) * tilt,
+      Math.sin(this.rotationAngle) * tilt,
+      0,
+    );
   }
 }

@@ -1,15 +1,15 @@
-import "./style.css";
+import './style.css';
 
-import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { createNoise3D } from "simplex-noise";
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { createNoise3D } from 'simplex-noise';
 
-import Stats from "three/addons/libs/stats.module.js";
-import { GPUStatsPanel } from "three/addons/utils/GPUStatsPanel.js";
-import { GUI } from "three/addons/libs/lil-gui.module.min.js";
-import Stick from "./Stick";
+import Stats from 'three/addons/libs/stats.module.js';
+import { GPUStatsPanel } from 'three/addons/utils/GPUStatsPanel.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+import Stick from './Stick';
 
-const isMobile = window.matchMedia("(max-width: 767px)").matches;
+const isMobile = window.matchMedia('(max-width: 767px)').matches;
 const noise3D = createNoise3D();
 const showHelperAxis = false;
 const isOrtho = true; // use orthographic or perspective camera
@@ -24,11 +24,11 @@ let gui;
 let showGUI = false;
 let isOrbitControlsEnabled = true;
 
-let lineWidth = 8;
+let lineWidth = 4;
 let lineHeight = isMobile ? 60 : 100;
 let noiseSpeed = 0.00003;
 let noiseIncrementX = isMobile ? 0.048 : 0.015;
-let noiseIncrementY = isMobile ? 0.063 : 0.05;
+let noiseIncrementY = isMobile ? 0.063 : 0.025;
 
 /**
  * Initial threejs scene setup.
@@ -52,7 +52,7 @@ const setup = () => {
         height / 2,
         height / -2,
         1,
-        10000
+        10000,
       )
     : new THREE.PerspectiveCamera(45, width / height, 1, 10000);
 
@@ -116,8 +116,15 @@ const { sticks, cells } = initSticksGrid();
  */
 
 let zoff = 0;
-const draw = () => {
+let previousFrameTime;
+const draw = (timestamp) => {
   requestAnimationFrame(draw);
+
+  const deltaTime =
+    previousFrameTime === undefined
+      ? 0
+      : Math.min((timestamp - previousFrameTime) / 1000, 0.05);
+  previousFrameTime = timestamp;
 
   stats.update();
 
@@ -128,7 +135,7 @@ const draw = () => {
     for (let x = 0; x < cols; x++) {
       const stickIndex = y * cols + x;
       const n = noise3D(xoff, yoff, zoff);
-      sticks[stickIndex].update(n);
+      sticks[stickIndex].update(n, deltaTime);
       xoff += noiseIncrementX;
     }
     yoff += noiseIncrementY;
@@ -150,12 +157,12 @@ const setupGUI = () => {
   document.body.removeChild(stats.dom);
 
   const settings = {
-    "Line width": lineWidth,
-    "Line height": lineHeight,
-    "Noise speed": noiseSpeed,
-    "Noise increment x": noiseIncrementX,
-    "Noise increment y": noiseIncrementY,
-    "Change random colour": () => {
+    'Line width': lineWidth,
+    'Line height': lineHeight,
+    'Noise speed': noiseSpeed,
+    'Noise increment x': noiseIncrementX,
+    'Noise increment y': noiseIncrementY,
+    'Change random colour': () => {
       const colors = new Array(6).fill(0);
       colors[3] = Math.random();
       colors[4] = Math.random();
@@ -163,55 +170,55 @@ const setupGUI = () => {
 
       sticks.forEach((stick) => stick.line.geometry.setColors(colors));
     },
-    "Toggle mouse camera controls": isOrbitControlsEnabled,
+    'Toggle mouse camera controls': isOrbitControlsEnabled,
   };
 
-  gui.add(settings, "Line width", 1, 20, 1).onChange((val) => {
+  gui.add(settings, 'Line width', 1, 20, 1).onChange((val) => {
     sticks.forEach((stick) => {
       stick.line.material.linewidth = val;
     });
   });
-  gui.add(settings, "Line height", 50, 300, 1).onChange((val) => {
+  gui.add(settings, 'Line height', 50, 300, 1).onChange((val) => {
     sticks.forEach((stick) => {
       stick.lineHeight = val;
     });
   });
 
   gui
-    .add(settings, "Noise speed", 0.00001, 0.0005, 0.00001)
+    .add(settings, 'Noise speed', 0.00001, 0.0005, 0.00001)
     .onChange((val) => (noiseSpeed = val));
 
   gui
-    .add(settings, "Noise increment x", 0.001, 0.1, 0.001)
+    .add(settings, 'Noise increment x', 0.001, 0.1, 0.001)
     .onChange((val) => (noiseIncrementX = val));
 
   gui
-    .add(settings, "Noise increment y", 0.001, 0.1, 0.001)
+    .add(settings, 'Noise increment y', 0.001, 0.1, 0.001)
     .onChange((val) => (noiseIncrementY = val));
 
-  gui.add(settings, "Change random colour");
+  gui.add(settings, 'Change random colour');
 
-  gui.add(settings, "Toggle mouse camera controls").onChange(() => {
+  gui.add(settings, 'Toggle mouse camera controls').onChange(() => {
     isOrbitControlsEnabled = !isOrbitControlsEnabled;
     controls.enabled = isOrbitControlsEnabled;
   });
 
   if (isMobile) {
-    instructions.style.display = "none";
+    instructions.style.display = 'none';
   }
-  window.addEventListener("keydown", (e) => {
-    if (e.key.toLocaleLowerCase() === "h" && !isMobile) {
+  window.addEventListener('keydown', (e) => {
+    if (e.key.toLocaleLowerCase() === 'h' && !isMobile) {
       showGUI = !showGUI;
-      const instructions = document.querySelector("#instructions");
+      const instructions = document.querySelector('#instructions');
 
       if (showGUI) {
         gui.show();
         document.body.appendChild(stats.dom);
-        instructions.style.display = "none";
+        instructions.style.display = 'none';
       } else {
         gui.hide();
         document.body.removeChild(stats.dom);
-        instructions.style.display = "block";
+        instructions.style.display = 'block';
       }
     }
   });
